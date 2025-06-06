@@ -6,7 +6,9 @@ https://kdiss.or.kr/board/competition_info/article/258183
 
 ## Electricity Demand Forecasting Competition
 
-> **모델링, 분석, 리더보드 실수를 통틀어 완성한 실전형 전력 수요 예측 프로젝트**
+> **실패로 끝난 대회?** 모델링, 분석, 리더보드 실수를 통틀어 완성한 실전형 전력 수요 예측 프로젝트
+
+![banner](https://user-images.githubusercontent.com/placeholder/banner.png)
 
 ---
 
@@ -22,18 +24,39 @@ https://kdiss.or.kr/board/competition_info/article/258183
 
 ## Modeling Summary
 
-### 전처리 및 파생
+### 전처리 및 피처 엔지니어링
 
-* `DATA_YM` → `YEAR`, `MONTH`, `SEASON` 파생
-* 범주형 변수 다중 인코딩
-* 통계 기반 파생: `MEAN_ELEC_BY_AREA`, `AREA_ID_FREQ` 등
-* 타겟 로그변환: `LOG_TOTAL_ELEC = np.log1p(TOTAL_ELEC)`
+전처리 단계는 **정확한 시간 정보 활용**, **범주형 변수 정제**, **모델이 이해할 수 있는 수치 기반 파생**을 목표로 세심하게 설계했습니다.
+
+#### 주요 처리 및 이유
+
+* `DATA_YM` → `YEAR`, `MONTH`, `SEASON`으로 분해:
+
+  * 월별/계절별 소비 패턴 반영 (전기 사용량은 계절성과 밀접함)
+* `AREA_ID`, `DIST_CD`, `AREA_DIST_ID` 등은 범주형 변수로 유지:
+
+  * 지역별 고정 효과를 잡기 위해 One-hot 인코딩 대신 Category 처리 유지
+* `FAC_TOTAL`, `FAC_DENSITY` 등 시설 기반 파생:
+
+  * 상권의 규모와 시설 밀집도는 소비 패턴에 직접적 영향
+* `RETAIL_RATIO`, `GAS_RATIO`, `MEDI_RATIO` 등 비율 파생:
+
+  * 전체 규모 대비 특정 기능이 강한 상권을 반영함
+* `MEAN_ELEC_BY_AREA`, `AREA_ID_FREQ` 등 통계 기반 피처:
+
+  * 지역 평균 소비 패턴/데이터 희소도 정보를 활용해 일반화 보조
+
+### 타겟 처리
+
+* `TOTAL_ELEC`의 분포가 매우 비대칭(positive skewed)이므로 `log1p` 변환하여 모델 안정성 확보
+
+---
 
 ### 모델 구조
 
 * `LGBMRegressor` + `XGBRegressor` 앙상블 (평균 기반)
-* `KFold(n_splits=5)` 기반 검증
-* 카테고리형은 LGBM에 그대로, XGB에는 `.cat.codes()` 적용
+* `KFold(n_splits=5)` 기반 검증으로 과적합 방지
+* 범주형 변수는 LGBM에선 그대로, XGB에는 `.cat.codes()` 방식 적용
 
 ### 교훈: expm1 + clip 미적용
 
@@ -51,7 +74,7 @@ https://kdiss.or.kr/board/competition_info/article/258183
 | Train RMSE 평균   | 91.57      |
 | 예측 최대값 (미클리핑)   | 4,316.06   |
 
- *분석적 사고 + 코드 설계 + 결과 복기까지 모두 포함된 프로젝트입니다.*
+*분석적 사고 + 코드 설계 + 결과 복기까지 모두 포함된 프로젝트입니다.*
 
 ---
 
@@ -90,7 +113,7 @@ electricity-demand-forecasting
 
 * `log1p`/`expm1`과 분포 통제의 중요성
 * 실전 앙상블 구성 및 과적합 관리 전략
-* 실패한 제출이라도 충분히 분석하고 다음에 반영할 수 있다면 그것은 실패가 아니다.
+* 실수에서 배우고, 그 과정을 복기할 수 있는 구조화된 리포팅 습관
 
 ---
 
@@ -107,3 +130,4 @@ electricity-demand-forecasting
 ---
 
 > © 2025. 오지송. All rights reserved.
+

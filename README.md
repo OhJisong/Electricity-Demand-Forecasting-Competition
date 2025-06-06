@@ -8,8 +8,6 @@ https://kdiss.or.kr/board/competition_info/article/258183
 
 > **실패로 끝난 대회?** 모델링, 분석, 리더보드 실수를 통틀어 완성한 실전형 전력 수요 예측 프로젝트
 
-![banner](https://user-images.githubusercontent.com/placeholder/banner.png)
-
 ---
 
 ## Overview
